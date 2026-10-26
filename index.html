@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Carnet Sauvage</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --bg-color: #f4f6f4;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --text-light: #7f8c8d;
+            --accent: #e8f5e9;
+            --warning: #e67e22;
+            --danger: #c0392b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-badge {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 80px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .grid-animals {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .btn-animal {
+            background-color: var(--card-bg);
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .btn-animal:active {
+            transform: scale(0.96);
+            background-color: var(--accent);
+            border-color: var(--primary);
+        }
+
+        .btn-animal .icon {
+            font-size: 2.2rem;
+        }
+
+        .btn-animal .name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .btn-custom-animal {
+            grid-column: span 2;
+            background-color: #f0f4f8;
+            border: 2px dashed #b0bec5;
+        }
+
+        .btn-deferred-entry {
+            width: 100%;
+            background-color: #fff8e1;
+            border: 2px solid #ffe082;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            color: #f57f17;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .status-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #757575;
+        }
+
+        .dot.online { background-color: #4caf50; }
+        .dot.pending { background-color: #ff9800; }
+
+        .list-history {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            border-left: 4px solid var(--primary);
+        }
+
+        .history-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-animal {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .history-user {
+            font-size: 0.75rem;
+            background-color: #e0f2f1;
+            color: #00695c;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .history-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            color: var(--text-light);
+        }
+
+        nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #e0e0e0;
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 33%;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item .icon {
+            font-size: 1.3rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: var(--text-color);
+        }
+
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background-color: #323232;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 80%;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌲 Carnet Sauvage</h1>
+        <div class="user-badge" id="userBadge" onclick="openUserModal()">👤 <span id="currentUserName">Invité</span></div>
+    </header>
+
+    <main>
+        <!-- ONGLET SAISIE -->
+        <div id="tab-capture" class="tab-content active">
+            <div class="status-card">
+                <div class="status-indicator">
+                    <div class="dot" id="syncDot"></div>
+                    <span id="syncStatus">Mode local</span>
+                </div>
+                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="syncPendingData()">Synchroniser</button>
+            </div>
+
+            <div class="section-title">Comptage Rapide</div>
+            <div class="grid-animals">
+                <button class="btn-animal" onclick="recordObservation('Écureuil', '🐿️')">
+                    <span class="icon">🐿️</span>
+                    <span class="name">Écureuil</span>
+                </button>
+                <button class="btn-animal" onclick="recordObservation('Chevreuil', '🦌')">
+                    <span class="icon">🦌</span>
+                    <span class="name">Chevreuil</span>
+                </button>
+                <button class="btn-animal" onclick="recordObservation('Renard', '🦊')">
+                    <span class="icon">🦊</span>
+                    <span class="name">Renard</span>
+                </button>
+                <button class="btn-animal" onclick="recordObservation('Buse', '🦅')">
+                    <span class="icon">🦅</span>
+                    <span class="name">Buse</span>
+                </button>
+                <button class="btn-animal" onclick="recordObservation('Hérisson', '🦔')">
+                    <span class="icon">🦔</span>
+                    <span class="name">Hérisson</span>
+                </button>
+                <button class="btn-animal" onclick="recordObservation('Héron', '🦩')">
+                    <span class="icon">🦩</span>
+                    <span class="name">Héron</span>
+                </button>
+                <button class="btn-animal btn-custom-animal" onclick="openCustomAnimalModal()">
+                    <span class="icon">🐾</span>
+                    <span class="name">+ Autre animal</span>
+                </button>
+            </div>
+
+            <button class="btn-deferred-entry" onclick="openDeferredModal()">
+                📅 Saisie différée / A posteriori
+            </button>
+        </div>
+
+        <!-- ONGLET HISTORIQUE -->
+        <div id="tab-history" class="tab-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div class="section-title" style="margin:0;">Toutes les observations</div>
+                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="fetchRemoteData()">🔄 Actualiser</button>
+            </div>
+            <div class="list-history" id="historyList"></div>
+        </div>
+
+        <!-- ONGLET REGLAGES -->
+        <div id="tab-settings" class="tab-content">
+            <div class="section-title">Profil & Synchronisation</div>
+            <div style="background:white; padding:15px; border-radius:12px; margin-bottom:15px;">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Votre Prénom / Pseudonyme</label>
+                    <input type="text" id="settingNickname" class="form-control" placeholder="Ex: Laetitia">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>URL Google Apps Script</label>
+                    <input type="text" id="settingScriptUrl" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="saveSettings()">Enregistrer les Réglages</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <button class="nav-item active" onclick="switchTab('capture', this)">
+            <span class="icon">🐾</span>
+            <span>Observer</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('history', this)">
+            <span class="icon">📜</span>
+            <span>Historique</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('settings', this)">
+            <span class="icon">⚙️</span>
+            <span>Réglages</span>
+        </button>
+    </nav>
+
+    <!-- MODAL EDIT / SAISIE DIFFÉRÉE -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-title" id="editModalTitle">Observation</div>
+            <input type="hidden" id="editId">
+            
+            <div class="form-group">
+                <label>Animal</label>
+                <input type="text" id="editAnimal" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>Observateur</label>
+                <input type="text" id="editUser" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>Date & Heure</label>
+                <input type="datetime-local" id="editTimestamp" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>Latitude</label>
+                <input type="text" id="editLat" class="form-control" placeholder="Ex: 46.5197">
+            </div>
+
+            <div class="form-group">
+                <label>Longitude</label>
+                <input type="text" id="editLng" class="form-control" placeholder="Ex: 6.6323">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('editModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveObservationEdit()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast">Message</div>
+
+    <script>
+        let currentUser = localStorage.getItem('cs_user') || '';
+        let scriptUrl = localStorage.getItem('cs_script_url') || '';
+        let observations = JSON.parse(localStorage.getItem('cs_data') || '[]');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!currentUser) openUserModal();
+            updateUserUI();
+            renderHistory();
+            checkSyncStatus();
+            document.getElementById('settingNickname').value = currentUser;
+            document.getElementById('settingScriptUrl').value = scriptUrl;
+        });
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            btn.classList.add('active');
+            if (tab === 'history') renderHistory();
+        }
+
+        function updateUserUI() {
+            document.getElementById('currentUserName').innerText = currentUser || 'Invité';
+        }
+
+        function saveSettings() {
+            currentUser = document.getElementById('settingNickname').value.trim();
+            scriptUrl = document.getElementById('settingScriptUrl').value.trim();
+            localStorage.setItem('cs_user', currentUser);
+            localStorage.setItem('cs_script_url', scriptUrl);
+            updateUserUI();
+            checkSyncStatus();
+            showToast("Réglages enregistrés !");
+        }
+
+        function recordObservation(animal, icon) {
+            if (!currentUser) return openUserModal();
+
+            showToast(`Enregistrement de ${animal}...`);
+
+            const newObs = {
+                id: 'obs_' + Date.now(),
+                animal: animal,
+                user: currentUser,
+                timestamp: new Date().toISOString(),
+                latitude: '',
+                longitude: '',
+                synced: false
+            };
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        newObs.latitude = pos.coords.latitude.toFixed(5);
+                        newObs.longitude = pos.coords.longitude.toFixed(5);
+                        saveAndSend(newObs);
+                    },
+                    err => saveAndSend(newObs),
+                    { timeout: 5000 }
+                );
+            } else {
+                saveAndSend(newObs);
+            }
+        }
+
+        function saveAndSend(obs) {
+            observations.unshift(obs);
+            localStorage.setItem('cs_data', JSON.stringify(observations));
+            renderHistory();
+            showToast(`✅ ${obs.animal} enregistré !`);
+            sendToGoogleSheet(obs);
+        }
+
+        function sendToGoogleSheet(obs) {
+            if (!scriptUrl) return;
+
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(obs)
+            }).then(() => {
+                obs.synced = true;
+                localStorage.setItem('cs_data', JSON.stringify(observations));
+                checkSyncStatus();
+            }).catch(() => checkSyncStatus());
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+
+            if (observations.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:gray; padding:20px;">Aucune observation pour le moment.</div>';
+                return;
+            }
+
+            observations.forEach(obs => {
+                const date = new Date(obs.timestamp);
+                const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                card.innerHTML = `
+                    <div class="history-info">
+                        <div class="history-header">
+                            <span class="history-animal">${obs.animal}</span>
+                            <span class="history-user">${obs.user}</span>
+                        </div>
+                        <div class="history-time">📅 ${dateStr}</div>
+                    </div>
+                    <div class="history-actions">
+                        ${obs.latitude ? `<a href="https://maps.google.com/?q=${obs.latitude},${obs.longitude}" target="_blank" class="action-btn">📍</a>` : ''}
+                        <button class="action-btn" onclick="openEditModal('${obs.id}')">✏️</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function checkSyncStatus() {
+            const dot = document.getElementById('syncDot');
+            const status = document.getElementById('syncStatus');
+            if (!scriptUrl) {
+                dot.className = 'dot';
+                status.innerText = 'Mode local (Pas d\'URL)';
+            } else {
+                dot.className = 'dot online';
+                status.innerText = 'Connecté au Sheet';
+            }
+        }
+
+        function openEditModal(id) {
+            const obs = observations.find(o => o.id === id);
+            if (!obs) return;
+
+            document.getElementById('editId').value = obs.id;
+            document.getElementById('editAnimal').value = obs.animal;
+            document.getElementById('editUser').value = obs.user;
+            
+            const d = new Date(obs.timestamp);
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            document.getElementById('editTimestamp').value = d.toISOString().slice(0,16);
+
+            document.getElementById('editLat').value = obs.latitude || '';
+            document.getElementById('editLng').value = obs.longitude || '';
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function saveObservationEdit() {
+            const id = document.getElementById('editId').value;
+            const obs = observations.find(o => o.id === id);
+            if (obs) {
+                obs.animal = document.getElementById('editAnimal').value;
+                obs.user = document.getElementById('editUser').value;
+                obs.timestamp = new Date(document.getElementById('editTimestamp').value).toISOString();
+                obs.latitude = document.getElementById('editLat').value;
+                obs.longitude = document.getElementById('editLng').value;
+
+                localStorage.setItem('cs_data', JSON.stringify(observations));
+                renderHistory();
+                closeModal('editModal');
+                showToast("Observation mise à jour !");
+                sendToGoogleSheet(obs);
+            }
+        }
+
+        function openDeferredModal() {
+            const newObs = {
+                id: 'obs_' + Date.now(),
+                animal: 'Écureuil',
+                user: currentUser,
+                timestamp: new Date().toISOString(),
+                latitude: '',
+                longitude: ''
+            };
+            observations.unshift(newObs);
+            openEditModal(newObs.id);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function openUserModal() {
+            const name = prompt("Entrez votre prénom / pseudonyme :", currentUser);
+            if (name) {
+                currentUser = name;
+                localStorage.setItem('cs_user', currentUser);
+                document.getElementById('settingNickname').value = currentUser;
+                updateUserUI();
+            }
+        }
+
+        function openCustomAnimalModal() {
+            const animal = prompt("Quel animal avez-vous vu ?");
+            if (animal) recordObservation(animal, '🐾');
+        }
+    </script>
+</body>
+</html>
