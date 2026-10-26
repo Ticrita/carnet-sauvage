@@ -4,18 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Carnet Sauvage</title>
-    <!-- Leaflet CSS -->
+    
+    <!-- Leaflet CSS (Carte) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <style>
         :root {
             --primary: #2e7d32;
             --primary-dark: #1b5e20;
+            --primary-light: #e8f5e9;
             --bg-color: #f4f6f4;
             --card-bg: #ffffff;
             --text-color: #2c3e50;
-            --text-light: #7f8c8d;
-            --accent: #e8f5e9;
+            --text-muted: #7f8c8d;
             --danger: #e74c3c;
+            --warning-bg: #fff8e1;
+            --warning-border: #ffe082;
+            --warning-text: #f57f17;
         }
 
         * {
@@ -31,109 +36,186 @@
             color: var(--text-color);
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
+            height: 100vh;
             max-width: 500px;
             margin: 0 auto;
             position: relative;
+            overflow: hidden;
         }
 
+        /* HEADER */
         header {
             background-color: var(--primary);
             color: white;
-            padding: 15px 20px;
+            padding: 14px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            z-index: 100;
         }
 
         header h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .user-badge {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 4px 10px;
-            border-radius: 15px;
+            background-color: rgba(255, 255, 255, 0.22);
+            padding: 5px 12px;
+            border-radius: 20px;
             font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        /* CONTENU PRINCIPAL */
         main {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
-            padding-bottom: 110px;
+            padding-bottom: 95px; /* Espace sécurité menu bas */
         }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
 
         .section-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-light);
-            margin-bottom: 6px;
-            font-weight: 600;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 700;
         }
 
-        .hint-text {
-            font-size: 0.78rem;
-            color: var(--text-light);
-            margin-bottom: 12px;
-            font-style: italic;
+        /* STATUT BANNER */
+        .status-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            border: 1px solid #e0e0e0;
         }
 
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background-color: #9e9e9e;
+        }
+
+        .dot.online {
+            background-color: #4caf50;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+        }
+
+        /* GRILLE BOUTONS ANIMAUX */
         .grid-animals {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
         }
 
-        .btn-animal {
+        .animal-card {
             background-color: var(--card-bg);
             border: 2px solid #e0e0e0;
             border-radius: 16px;
-            padding: 15px 10px;
+            padding: 12px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            gap: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
             position: relative;
-            touch-action: manipulation;
         }
 
-        .btn-animal:active {
-            transform: scale(0.96);
-            background-color: var(--accent);
+        .animal-card:active {
+            transform: scale(0.97);
+            background-color: var(--primary-light);
             border-color: var(--primary);
         }
 
-        .btn-animal .icon { font-size: 2.2rem; }
-        .btn-animal .name { font-weight: 600; font-size: 1rem; }
+        .btn-quick-tap {
+            background: none;
+            border: none;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .animal-icon {
+            font-size: 2.2rem;
+            line-height: 1.1;
+        }
+
+        .animal-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-color);
+            margin-top: 4px;
+        }
+
+        .btn-multi-count {
+            margin-top: 6px;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
 
         .btn-custom-animal {
             grid-column: span 2;
             background-color: #f0f4f8;
             border: 2px dashed #b0bec5;
+            padding: 14px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #455a64;
         }
 
         .btn-deferred-entry {
             width: 100%;
-            background-color: #fff8e1;
-            border: 2px solid #ffe082;
-            border-radius: 12px;
+            background-color: var(--warning-bg);
+            border: 2px solid var(--warning-border);
+            border-radius: 14px;
             padding: 12px;
-            font-weight: 600;
-            color: #f57f17;
+            font-weight: 700;
+            color: var(--warning-text);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -142,93 +224,124 @@
             margin-bottom: 20px;
         }
 
-        .status-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 12px 15px;
+        /* HISTORIQUE */
+        .list-history {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .status-indicator { display: flex; align-items: center; gap: 8px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background-color: #757575; }
-        .dot.online { background-color: #4caf50; }
-
-        .list-history { display: flex; flex-direction: column; gap: 10px; }
         .history-card {
             background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 12px 15px;
+            border-radius: 14px;
+            padding: 12px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid var(--primary);
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
 
-        .history-info { display: flex; flex-direction: column; gap: 4px; }
-        .history-header { display: flex; align-items: center; gap: 8px; }
-        .history-animal { font-weight: 700; font-size: 1.05rem; }
-        .history-count {
-            background-color: var(--accent);
-            color: var(--primary-dark);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 700;
+        .history-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-animal {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .history-count {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
         .history-user {
             font-size: 0.75rem;
             background-color: #e0f2f1;
             color: #00695c;
-            padding: 2px 6px;
+            padding: 2px 8px;
             border-radius: 8px;
             font-weight: 600;
         }
-        .history-time { font-size: 0.8rem; color: var(--text-light); }
-        .history-actions { display: flex; align-items: center; gap: 4px; }
-        .action-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 5px; }
 
-        #mapFilter {
-            width: 100%;
-            padding: 10px;
+        .history-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .history-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            font-size: 1.15rem;
+            cursor: pointer;
+            padding: 6px;
             border-radius: 8px;
+        }
+
+        /* CARTE ET FILTRES */
+        .filter-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
             border: 1px solid #ccc;
             margin-bottom: 12px;
             font-size: 0.9rem;
             background: white;
+            font-weight: 600;
         }
 
         #mapContainer {
             width: 100%;
             height: 380px;
-            border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
             z-index: 1;
         }
 
+        /* NAVIGATION BAR FIXE */
         nav {
             position: fixed;
-            bottom: 0; left: 0; right: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             max-width: 500px;
             margin: 0 auto;
             background-color: var(--card-bg);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
             border-top: 1px solid #e0e0e0;
             z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            color: var(--text-light);
+            gap: 3px;
+            color: var(--text-muted);
             text-decoration: none;
             font-size: 0.72rem;
             cursor: pointer;
@@ -237,103 +350,186 @@
             width: 25%;
         }
 
-        .nav-item.active { color: var(--primary); font-weight: 600; }
-        .nav-item .icon { font-size: 1.3rem; }
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
 
+        .nav-item .icon {
+            font-size: 1.35rem;
+        }
+
+        /* MODALS */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1100;
+            background-color: rgba(0,0,0,0.55);
+            backdrop-filter: blur(3px);
+            z-index: 2000;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-        .modal.active { display: flex; }
+
+        .modal.active {
+            display: flex;
+        }
+
         .modal-content {
             background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 18px;
+            padding: 22px;
             width: 100%;
             max-width: 400px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-light); }
-        .form-control { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
-        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-        .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
         .btn-primary { background-color: var(--primary); color: white; }
         .btn-secondary { background-color: #e0e0e0; color: var(--text-color); }
+        .btn-danger { background-color: var(--danger); color: white; }
 
+        /* TOAST NOTIFICATION */
         .toast {
             position: fixed;
-            top: 70px; left: 50%;
+            top: 65px; left: 50%;
             transform: translateX(-50%) translateY(-20px);
             background-color: #323232;
             color: white;
             padding: 10px 20px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
+            font-weight: 500;
             opacity: 0;
             transition: all 0.3s ease;
             pointer-events: none;
-            z-index: 2000;
+            z-index: 3000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
 
+    <!-- HEADER -->
     <header>
         <h1>🌲 Carnet Sauvage</h1>
-        <div class="user-badge" onclick="openUserModal()">👤 <span id="currentUserName">Invité</span></div>
+        <div class="user-badge" onclick="openUserModal()">👤 <span id="currentUserName">Laetitia</span></div>
     </header>
 
+    <!-- CONTENU -->
     <main>
-        <!-- OBSERVARION -->
+        <!-- TAB 1: OBSERVER -->
         <div id="tab-capture" class="tab-content active">
             <div class="status-card">
                 <div class="status-indicator">
                     <div class="dot" id="syncDot"></div>
-                    <span id="syncStatus">Vérification...</span>
+                    <span id="syncStatus">Connecté au Sheet</span>
                 </div>
+                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="syncPendingData()">🔄 Sync</button>
             </div>
 
             <div class="section-title">Comptage Rapide</div>
-            <div class="hint-text">💡 Appui court = 1 animal | Appui long = choisir le nombre</div>
-
+            
             <div class="grid-animals">
-                <button class="btn-animal" onclick="handleAnimalClick('Écureuil', '🐿️', event)">
-                    <span class="icon">🐿️</span>
-                    <span class="name">Écureuil</span>
-                </button>
-                <button class="btn-animal" onclick="handleAnimalClick('Chevreuil', '🦌', event)">
-                    <span class="icon">🦌</span>
-                    <span class="name">Chevreuil</span>
-                </button>
-                <button class="btn-animal" onclick="handleAnimalClick('Renard', '🦊', event)">
-                    <span class="icon">🦊</span>
-                    <span class="name">Renard</span>
-                </button>
-                <button class="btn-animal" onclick="handleAnimalClick('Buse', '🦅', event)">
-                    <span class="icon">🦅</span>
-                    <span class="name">Buse</span>
-                </button>
-                <button class="btn-animal" onclick="handleAnimalClick('Hérisson', '🦔', event)">
-                    <span class="icon">🦔</span>
-                    <span class="name">Hérisson</span>
-                </button>
-                <button class="btn-animal" onclick="handleAnimalClick('Héron', '🦩', event)">
-                    <span class="icon">🦩</span>
-                    <span class="name">Héron</span>
-                </button>
-                <button class="btn-animal btn-custom-animal" onclick="openCustomAnimalModal()">
-                    <span class="icon">🐾</span>
-                    <span class="name">+ Autre animal</span>
+                <div class="animal-card">
+                    <button class="btn-quick-tap" onclick="recordObservation('Écureuil', '🐿️', 1)">
+                        <span class="animal-icon">🐿️</span>
+                        <span class="animal-name">Écureuil</span>
+                    </button>
+                    <button class="btn-multi-count" onclick="promptMultiCount('Écureuil', '🐿️')">+ Nombre</button>
+                </div>
+
+                <div class="animal-card">
+                    <button class="btn-quick-tap" onclick="recordObservation('Chevreuil', '🦌', 1)">
+                        <span class="animal-icon">🦌</span>
+                        <span class="animal-name">Chevreuil</span>
+                    </button>
+                    <button class="btn-multi-count" onclick="promptMultiCount('Chevreuil', '🦌')">+ Nombre</button>
+                </div>
+
+                <div class="animal-card">
+                    <button class="btn-quick-tap" onclick="recordObservation('Renard', '🦊', 1)">
+                        <span class="animal-icon">🦊</span>
+                        <span class="animal-name">Renard</span>
+                    </button>
+                    <button class="btn-multi-count" onclick="promptMultiCount('Renard', '🦊')">+ Nombre</button>
+                </div>
+
+                <div class="animal-card">
+                    <button class="btn-quick-tap" onclick="recordObservation('Buse', '🦅', 1)">
+                        <span class="animal-icon">🦅</span>
+                        <span class="animal-name">Buse</span>
+                    </button>
+                    <button class="btn-multi-count" onclick="promptMultiCount('Buse', '🦅')">+ Nombre</button>
+                </div>
+
+                <div class="animal-card">
+                    <button class="btn-quick-tap" onclick="recordObservation('Hérisson', '🦔', 1)">
+                        <span class="animal-icon">🦔</span>
+                        <span class="animal-name">Hérisson</span>
+                    </button>
+                    <button class="btn-multi-count" onclick="promptMultiCount('Hérisson', '🦔')">+ Nombre</button>
+                </div>
+
+                <div class="animal-card">
+                    <button class="btn-quick-tap" onclick="recordObservation('Héron', '🪶', 1)">
+                        <span class="animal-icon">🪶</span>
+                        <span class="animal-name">Héron</span>
+                    </button>
+                    <button class="btn-multi-count" onclick="promptMultiCount('Héron', '🪶')">+ Nombre</button>
+                </div>
+
+                <button class="btn-custom-animal" onclick="openCustomAnimalModal()">
+                    <span style="font-size:1.3rem;">🐾</span>
+                    <span>+ Autre animal...</span>
                 </button>
             </div>
 
@@ -342,10 +538,10 @@
             </button>
         </div>
 
-        <!-- CARTE -->
+        <!-- TAB 2: CARTE -->
         <div id="tab-map" class="tab-content">
             <div class="section-title">Carte des Observations</div>
-            <select id="mapFilter" onchange="renderMapMarkers()">
+            <select id="mapFilter" class="filter-select" onchange="renderMapMarkers()">
                 <option value="all">Toutes les observations</option>
                 <option value="7">7 derniers jours</option>
                 <option value="30">30 derniers jours</option>
@@ -354,23 +550,24 @@
             <div id="mapContainer"></div>
         </div>
 
-        <!-- HISTORIQUE -->
+        <!-- TAB 3: HISTORIQUE -->
         <div id="tab-history" class="tab-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                 <div class="section-title" style="margin:0;">Toutes les observations</div>
+                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.78rem;" onclick="fetchRemoteData()">🔄 Actualiser</button>
             </div>
             <div class="list-history" id="historyList"></div>
         </div>
 
-        <!-- REGLAGES -->
+        <!-- TAB 4: REGLAGES -->
         <div id="tab-settings" class="tab-content">
             <div class="section-title">Profil & Synchronisation</div>
-            <div style="background:white; padding:15px; border-radius:12px;">
+            <div style="background:white; padding:16px; border-radius:14px; border:1px solid #e0e0e0;">
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label>Votre Prénom / Pseudonyme</label>
                     <input type="text" id="settingNickname" class="form-control" placeholder="Ex: Laetitia">
                 </div>
-                <div class="form-group" style="margin-bottom: 12px;">
+                <div class="form-group" style="margin-bottom: 14px;">
                     <label>URL Google Script (Pré-configurée)</label>
                     <input type="text" id="settingScriptUrl" class="form-control">
                 </div>
@@ -379,7 +576,7 @@
         </div>
     </main>
 
-    <!-- NAVIGATION -->
+    <!-- NAVIGATION BAR MOBILE -->
     <nav>
         <button class="nav-item active" onclick="switchTab('capture', this)">
             <span class="icon">🐾</span>
@@ -402,10 +599,10 @@
     <!-- MODAL EDIT / SAISIE DIFFÉRÉE -->
     <div class="modal" id="editModal">
         <div class="modal-content">
-            <div style="font-weight:700; font-size:1.1rem;">Observation</div>
+            <div class="modal-title" id="editModalTitle">Observation</div>
             <input type="hidden" id="editId">
             <div class="form-group">
-                <label>Animal</label>
+                <label>Nom de l'animal</label>
                 <input type="text" id="editAnimal" class="form-control">
             </div>
             <div class="form-group">
@@ -422,11 +619,11 @@
             </div>
             <div class="form-group">
                 <label>Latitude</label>
-                <input type="text" id="editLat" class="form-control">
+                <input type="text" id="editLat" class="form-control" placeholder="Ex: 46.5197">
             </div>
             <div class="form-group">
                 <label>Longitude</label>
-                <input type="text" id="editLng" class="form-control">
+                <input type="text" id="editLng" class="form-control" placeholder="Ex: 6.6323">
             </div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeModal('editModal')">Annuler</button>
@@ -435,22 +632,23 @@
         </div>
     </div>
 
-    <div class="toast" id="toast">Message</div>
+    <!-- TOAST -->
+    <div class="toast" id="toast">Notification</div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
+        // URL GOOGLE APPS SCRIPT D'ORIGINE
         const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySnaXp6lWk_y2ytppcMStWkB_gGY73kk-qFpUq1BS4yvBWSf4Ru1XAOum2USuj3mXQ/exec';
 
-        let currentUser = localStorage.getItem('cs_user') || '';
+        let currentUser = localStorage.getItem('cs_user') || 'Laetitia';
         let scriptUrl = localStorage.getItem('cs_script_url') || DEFAULT_SCRIPT_URL;
         let observations = JSON.parse(localStorage.getItem('cs_data') || '[]');
         let map = null;
         let markersGroup = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!currentUser) openUserModal();
             updateUserUI();
             renderHistory();
             checkSyncStatus();
@@ -480,8 +678,8 @@
         }
 
         function saveSettings() {
-            currentUser = document.getElementById('settingNickname').value.trim();
-            scriptUrl = document.getElementById('settingScriptUrl').value.trim();
+            currentUser = document.getElementById('settingNickname').value.trim() || 'Invité';
+            scriptUrl = document.getElementById('settingScriptUrl').value.trim() || DEFAULT_SCRIPT_URL;
             localStorage.setItem('cs_user', currentUser);
             localStorage.setItem('cs_script_url', scriptUrl);
             updateUserUI();
@@ -489,25 +687,16 @@
             showToast("Réglages enregistrés !");
         }
 
-        // CLIC AVEC OPTION DE SÉLECTION RAPIDE
-        function handleAnimalClick(animal, icon, event) {
-            // Si la touche Alt/Maj est appuyée ou si on demande le nombre
-            if (event && (event.shiftKey || event.altKey)) {
-                const countStr = prompt(`Combien de ${animal}s avez-vous vus ?`, "2");
-                if (countStr !== null) {
-                    const count = parseInt(countStr) || 1;
-                    recordObservation(animal, icon, count);
-                }
-            } else {
-                // Clic normal = 1 animal
-                recordObservation(animal, icon, 1);
+        function promptMultiCount(animal, icon) {
+            const countStr = prompt(`Combien de ${animal}s avez-vous vus ?`, "2");
+            if (countStr !== null) {
+                const count = parseInt(countStr) || 1;
+                recordObservation(animal, icon, count);
             }
         }
 
         function recordObservation(animal, icon, count = 1) {
-            if (!currentUser) return openUserModal();
-
-            showToast(`Enregistrement de ${count} ${animal}(s)...`);
+            showToast(`Enregistrement de ${count} ${animal}...`);
 
             const newObs = {
                 id: 'obs_' + Date.now(),
@@ -527,7 +716,7 @@
                         saveAndSend(newObs);
                     },
                     err => saveAndSend(newObs),
-                    { timeout: 5000 }
+                    { timeout: 4000 }
                 );
             } else {
                 saveAndSend(newObs);
@@ -556,11 +745,34 @@
             }).catch(() => checkSyncStatus());
         }
 
+        function syncPendingData() {
+            showToast("Synchronisation en cours...");
+            if (observations.length === 0) return;
+            observations.forEach(obs => sendToGoogleSheet(obs));
+            setTimeout(() => checkSyncStatus(), 1500);
+        }
+
+        function fetchRemoteData() {
+            if (!scriptUrl) return;
+            showToast("Récupération du Sheet...");
+            fetch(scriptUrl)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    observations = data.reverse();
+                    localStorage.setItem('cs_data', JSON.stringify(observations));
+                    renderHistory();
+                    showToast("Historique mis à jour !");
+                }
+            })
+            .catch(() => showToast("Mode hors-ligne actif"));
+        }
+
         function deleteObservation(id) {
             const obs = observations.find(o => o.id === id);
             if (!obs) return;
 
-            if (confirm(`Voulez-vous vraiment supprimer l'observation de ${obs.animal} ?`)) {
+            if (confirm(`Voulez-vous vraiment supprimer cette observation de ${obs.animal} ?`)) {
                 observations = observations.filter(o => o.id !== id);
                 localStorage.setItem('cs_data', JSON.stringify(observations));
                 renderHistory();
@@ -574,7 +786,7 @@
             list.innerHTML = '';
 
             if (observations.length === 0) {
-                list.innerHTML = '<div style="text-align:center; color:gray; padding:20px;">Aucune observation pour le moment.</div>';
+                list.innerHTML = '<div style="text-align:center; color:gray; padding:20px;">Aucune observation enregistrée.</div>';
                 return;
             }
 
@@ -604,18 +816,19 @@
             });
         }
 
+        /* CARTE LEAFLET */
         function initOrRefreshMap() {
             if (typeof L === 'undefined') return;
 
             if (!map) {
-                map = L.map('mapContainer').setView([46.5197, 6.6323], 12);
+                map = L.map('mapContainer').setView([46.5197, 6.6323], 11);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '© OpenStreetMap'
                 }).addTo(map);
                 markersGroup = L.layerGroup().addTo(map);
             }
-            setTimeout(() => { map.invalidateSize(); }, 200);
+            setTimeout(() => { map.invalidateSize(); }, 250);
             renderMapMarkers();
         }
 
@@ -631,9 +844,7 @@
                 if (filterValue === 'all') return true;
 
                 const obsDate = new Date(obs.timestamp);
-                const diffTime = Math.abs(now - obsDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+                const diffDays = Math.ceil(Math.abs(now - obsDate) / (1000 * 60 * 60 * 24));
                 return diffDays <= parseInt(filterValue);
             });
 
@@ -644,4 +855,114 @@
                 const lng = parseFloat(obs.longitude);
                 if (isNaN(lat) || isNaN(lng)) return;
 
-                const dateStr
+                const dateStr = new Date(obs.timestamp).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const countVal = obs.count || 1;
+
+                const marker = L.marker([lat, lng]);
+                marker.bindPopup(`
+                    <b>${obs.animal}</b> ${countVal > 1 ? '(x' + countVal + ')' : ''}<br>
+                    👤 Observateur: ${obs.user}<br>
+                    📅 ${dateStr}
+                `);
+                markersGroup.addLayer(marker);
+                bounds.push([lat, lng]);
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [35, 35] });
+            }
+        }
+
+        function checkSyncStatus() {
+            const dot = document.getElementById('syncDot');
+            const status = document.getElementById('syncStatus');
+            if (!dot || !status) return;
+
+            if (!scriptUrl) {
+                dot.className = 'dot';
+                status.innerText = 'Mode local';
+            } else {
+                dot.className = 'dot online';
+                status.innerText = 'Connecté au Sheet';
+            }
+        }
+
+        function openEditModal(id) {
+            const obs = observations.find(o => o.id === id);
+            if (!obs) return;
+
+            document.getElementById('editId').value = obs.id;
+            document.getElementById('editAnimal').value = obs.animal;
+            document.getElementById('editCount').value = obs.count || 1;
+            document.getElementById('editUser').value = obs.user;
+            
+            const d = new Date(obs.timestamp);
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            document.getElementById('editTimestamp').value = d.toISOString().slice(0,16);
+
+            document.getElementById('editLat').value = obs.latitude || '';
+            document.getElementById('editLng').value = obs.longitude || '';
+
+            document.getElementById('editModalTitle').innerText = "Modifier l'observation";
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function saveObservationEdit() {
+            const id = document.getElementById('editId').value;
+            const obs = observations.find(o => o.id === id);
+            if (obs) {
+                obs.animal = document.getElementById('editAnimal').value;
+                obs.count = parseInt(document.getElementById('editCount').value) || 1;
+                obs.user = document.getElementById('editUser').value;
+                obs.timestamp = new Date(document.getElementById('editTimestamp').value).toISOString();
+                obs.latitude = document.getElementById('editLat').value;
+                obs.longitude = document.getElementById('editLng').value;
+
+                localStorage.setItem('cs_data', JSON.stringify(observations));
+                renderHistory();
+                closeModal('editModal');
+                showToast("Observation enregistrée !");
+                sendToGoogleSheet(obs);
+            }
+        }
+
+        function openDeferredModal() {
+            const newObs = {
+                id: 'obs_' + Date.now(),
+                animal: 'Écureuil',
+                count: 1,
+                user: currentUser,
+                timestamp: new Date().toISOString(),
+                latitude: '',
+                longitude: ''
+            };
+            observations.unshift(newObs);
+            openEditModal(newObs.id);
+            document.getElementById('editModalTitle').innerText = "Saisie différée";
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function openUserModal() {
+            const name = prompt("Entrez votre prénom / pseudonyme :", currentUser);
+            if (name) {
+                currentUser = name;
+                localStorage.setItem('cs_user', currentUser);
+                document.getElementById('settingNickname').value = currentUser;
+                updateUserUI();
+            }
+        }
+
+        function openCustomAnimalModal() {
+            const animal = prompt("Quel animal avez-vous vu ?");
+            if (animal) {
+                const countStr = prompt(`Combien de ${animal}s ?`, "1");
+                const count = parseInt(countStr) || 1;
+                recordObservation(animal, '🐾', count);
+            }
+        }
+    </script>
+</body>
+</html>
